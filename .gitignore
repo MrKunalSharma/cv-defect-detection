@@ -1,0 +1,44 @@
+﻿# Python
+__pycache__/
+*.py[cod]
+venv/
+env/
+
+# Models
+models/*.pt
+models/*.pth
+models/*.onnx
+!models/.gitkeep
+
+# Data
+data/
+!data/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+logs/
+runs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+test_*.jpg
+*.jpeg
+*.jpg
+*.png
+!docs/images/*.png
+!docs/images/*.jpg
+
+# Cache
+.cache/
+__pycache__/
+
+# Streamlit
+.streamlit/secrets.toml
