@@ -2,21 +2,21 @@
 
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    libglib2.0-0 \
-    libsm6 \
-    libxext6 \
-    libxrender-dev \
-    libgomp1 \
-    libgl1-mesa-glx \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copy requirements
+# Copy requirements first
 COPY requirements-api.txt .
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements-api.txt
+# Install Python dependencies with specific versions for Render
+RUN pip install --no-cache-dir \
+    ultralytics==8.0.200 \
+    opencv-python-headless==4.8.1.78 \
+    fastapi==0.104.1 \
+    uvicorn[standard]==0.24.0 \
+    numpy==1.24.3 \
+    Pillow==10.1.0 \
+    python-multipart==0.0.6 \
+    --index-url https://download.pytorch.org/whl/cpu \
+    torch==2.1.0+cpu \
+    torchvision==0.16.0+cpu
 
 # Copy necessary code
 COPY inference/ ./inference/
@@ -26,7 +26,7 @@ COPY configs/ ./configs/
 # Create models directory
 RUN mkdir -p models
 
-# Expose port
+# Expose port (Render will override this)
 EXPOSE 8000
 
 # Run the API
