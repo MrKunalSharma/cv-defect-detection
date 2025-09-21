@@ -1,5 +1,5 @@
 ﻿"""
-Streamlit Dashboard for Defect Detection
+Streamlit Dashboard for Defect Detection - Cloud Version
 """
 import streamlit as st
 import requests
@@ -37,8 +37,11 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# API endpoint
-API_URL = "https://cv-defect-api.onrender.com"
+# API endpoint - use secrets if available, otherwise use deployed URL
+try:
+    API_URL = st.secrets["API_URL"]
+except:
+    API_URL = "https://cv-defect-api.onrender.com"
 
 # Initialize session state
 if 'detection_history' not in st.session_state:
@@ -68,11 +71,11 @@ with st.sidebar:
                     st.success("✅ API is healthy")
                     model_type = health.get('model_type', 'unknown')
                     st.info(f"Model type: {model_type}")
-                    st.info(f"Model loaded: {health.get('model_loaded', 'Unknown')}")
+                    st.info(f"API URL: {API_URL}")
             else:
                 st.error("❌ API is not responding")
-        except:
-            st.error("❌ Cannot connect to API")
+        except Exception as e:
+            st.error(f"❌ Cannot connect to API: {str(e)}")
     
     # Statistics
     st.subheader("📊 Statistics")
@@ -144,8 +147,12 @@ with col1:
                         with col2:
                             st.header("🎯 Detection Results")
                             
+                            # Check if demo mode
+                            if result.get('model_type') == 'demo':
+                                st.warning("⚠️ Running in demo mode - showing sample detections")
+                            
                             # Determine what to show based on response
-                            total_detections = result.get('total_detections', result.get('total_defects', 0))
+                            total_detections = result.get('total_detections', 0)
                             model_type = result.get('model_type', 'unknown')
                             
                             # Metrics
@@ -189,10 +196,9 @@ with col1:
                                     st.write(f"**Detection {i+1}:**")
                                     st.write(f"- Type: {detection['class']}")
                                     st.write(f"- Confidence: {detection['confidence']:.2%}")
-                                    st.write(f"- Location: ({detection['bbox']['x1']}, {detection['bbox']['y1']})")
                                     st.write("---")
                             else:
-                                st.success("✅ No objects detected!")
+                                st.info("No objects detected in the image.")
                                 
                     else:
                         st.error(f"Error: {response.status_code}")
@@ -200,7 +206,7 @@ with col1:
                         
                 except Exception as e:
                     st.error(f"Error: {str(e)}")
-                    st.info("Make sure the API server is running on http://localhost:8000")
+                    st.info("Make sure the API is accessible")
 
 with col2:
     if not image_to_process:
@@ -218,7 +224,7 @@ if st.session_state.detection_history:
                 st.image(item['image'], width=200)
             with col_hist2:
                 result = item['result']
-                total_detections = result.get('total_detections', result.get('total_defects', 0))
+                total_detections = result.get('total_detections', 0)
                 st.write(f"**Total Detections:** {total_detections}")
                 st.write(f"**Processing Time:** {result['processing_time']:.3f}s")
                 if result['detections']:
@@ -229,5 +235,4 @@ else:
 
 # Footer
 st.markdown("---")
-st.markdown("Built with ❤️ using Streamlit and YOLOv8")
-
+st.markdown("Built with ❤️ using Streamlit and YOLOv8 | [GitHub](https://github.com/MrKunalSharma/cv-defect-detection)")
