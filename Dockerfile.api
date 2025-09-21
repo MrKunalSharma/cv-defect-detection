@@ -1,33 +1,31 @@
-﻿FROM python:3.9-slim
+﻿FROM python:3.9
 
 WORKDIR /app
 
-# Copy requirements first
+# Update pip
+RUN pip install --upgrade pip
+
+# Copy requirements
 COPY requirements-api.txt .
 
-# Install Python dependencies with specific versions for Render
-RUN pip install --no-cache-dir \
-    ultralytics==8.0.200 \
-    opencv-python-headless==4.8.1.78 \
-    fastapi==0.104.1 \
-    uvicorn[standard]==0.24.0 \
-    numpy==1.24.3 \
-    Pillow==10.1.0 \
-    python-multipart==0.0.6 \
-    --index-url https://download.pytorch.org/whl/cpu \
-    torch==2.1.0+cpu \
-    torchvision==0.16.0+cpu
+# Install dependencies one by one to handle issues
+RUN pip install fastapi==0.104.1 uvicorn[standard]==0.24.0 python-multipart==0.0.6
+RUN pip install numpy==1.24.3 Pillow==10.1.0
+RUN pip install opencv-python-headless==4.8.1.78
+RUN pip install torch==2.1.0 torchvision==0.16.0 --index-url https://download.pytorch.org/whl/cpu
+RUN pip install ultralytics
 
 # Copy necessary code
 COPY inference/ ./inference/
 COPY utils/ ./utils/
 COPY configs/ ./configs/
+COPY models/ ./models/
 
-# Create models directory
+# Create necessary directories
 RUN mkdir -p models
 
-# Expose port (Render will override this)
-EXPOSE 8000
+# Set environment variable
+ENV PORT=8000
 
 # Run the API
-CMD ["uvicorn", "inference.api_render:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD uvicorn inference.api_render:app --host 0.0.0.0 --port ${PORT:-8000}
