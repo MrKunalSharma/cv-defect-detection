@@ -6,7 +6,6 @@ import requests
 import numpy as np
 from PIL import Image
 import io
-import cv2
 import time
 from datetime import datetime
 
@@ -173,17 +172,13 @@ with col1:
                                 for detection in result['detections']:
                                     bbox = detection['bbox']
                                     # Draw rectangle
-                                    cv2.rectangle(
-                                        img_array,
-                                        (bbox['x1'], bbox['y1']),
+                                    # Rectangle drawing removed for cloud deployment,
                                         (bbox['x2'], bbox['y2']),
                                         (0, 255, 0), 2
                                     )
                                     # Add label
                                     label = f"{detection['class']} ({detection['confidence']:.2f})"
-                                    cv2.putText(
-                                        img_array, label,
-                                        (bbox['x1'], bbox['y1'] - 10),
+                                    # Text drawing removed for cloud deployment,
                                         cv2.FONT_HERSHEY_SIMPLEX,
                                         0.5, (0, 255, 0), 2
                                     )
@@ -236,3 +231,4 @@ else:
 # Footer
 st.markdown("---")
 st.markdown("Built with ❤️ using Streamlit and YOLOv8 | [GitHub](https://github.com/MrKunalSharma/cv-defect-detection)")
+
