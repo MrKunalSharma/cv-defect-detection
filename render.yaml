@@ -1,0 +1,9 @@
+﻿services:
+  - type: web
+    name: cv-defect-api
+    runtime: python
+    buildCommand: "pip install -r requirements-api.txt"
+    startCommand: "uvicorn inference.api:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.9"
