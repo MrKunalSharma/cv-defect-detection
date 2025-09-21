@@ -1,0 +1,20 @@
+﻿FROM python:3.9-slim
+
+WORKDIR /app
+
+# Install only essential packages
+RUN pip install --no-cache-dir \
+    fastapi==0.104.1 \
+    uvicorn[standard]==0.24.0 \
+    python-multipart==0.0.6 \
+    Pillow==10.1.0
+
+# Copy necessary code
+COPY inference/api_lightweight.py ./inference/
+RUN mkdir -p utils configs models
+
+# Set environment variable
+ENV PORT=8000
+
+# Run the lightweight API
+CMD uvicorn inference.api_lightweight:app --host 0.0.0.0 --port ${PORT:-8000}
